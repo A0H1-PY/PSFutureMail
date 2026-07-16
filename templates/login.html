@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>PSFutureMail — Write an email to your future self</title>
+    <style>
+      :root{--bg:#f6f8ff;--surface:#ffffff;--surface-strong:#f7f9ff;--surface-stronger:#eef1ff;--muted:#6b7280;--accent:#2bb673;--accent-strong:#22a158;--dark:#0f1724;--border:rgba(15,23,36,0.08);--shadow:0 22px 60px rgba(15,23,36,0.08)}
+      *,*::before,*::after{box-sizing:border-box}
+      html,body{height:100%;margin:0;background:linear-gradient(180deg,#f8fbff 0%,#eef3ff 100%);font-family:Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;color:var(--dark)}
+      body{min-height:100vh}
+      img{max-width:100%;display:block}
+
+      .site{max-width:1200px;margin:0 auto;padding:28px 24px}
+      header{display:flex;justify-content:space-between;align-items:center;gap:20px;padding:12px 0}
+      .logo{font-weight:800;color:var(--dark);font-size:20px;letter-spacing:-0.03em}
+      .nav{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+      .nav a{color:var(--dark);text-decoration:none;font-size:14px;padding:10px 14px;border-radius:999px;transition:background .2s,color .2s}
+      .nav a:hover{background:rgba(43,182,115,0.12);color:var(--accent-strong)}
+      .btn-outline{border:1px solid rgba(15,23,36,0.12);background:#fff;color:var(--dark);font-weight:600}
+      .btn-outline:hover{background:rgba(43,182,115,0.08)}
+      .btn-ghost{background:transparent;border:0;color:var(--dark);font-weight:600}
+
+      .hero{display:grid;grid-template-columns:1.1fr 0.9fr;gap:30px;align-items:center;margin-top:18px;padding:30px 0}
+      .hero-left h1{font-size:3.05rem;line-height:1.05;margin:0 0 22px;max-width:620px}
+      .hero-left p{margin:0 0 24px;color:var(--muted);font-size:1.05rem;max-width:600px}
+      .hero-cta{display:flex;flex-wrap:wrap;gap:14px}
+      .cta-primary,.cta-secondary{min-width:180px;display:inline-flex;align-items:center;justify-content:center;gap:10px;font-size:0.98rem;font-weight:700;transition:transform .18s ease,box-shadow .18s ease,background .18s ease}
+      .cta-primary{background:linear-gradient(90deg,var(--accent),#26a65a);color:#fff;padding:16px 20px;border-radius:14px;border:0;box-shadow:0 18px 40px rgba(43,182,115,0.24);cursor:pointer}
+      .cta-primary:hover{transform:translateY(-1px);box-shadow:0 22px 45px rgba(43,182,115,0.32)}
+      .cta-secondary{background:#fff;color:var(--dark);border:1px solid rgba(15,23,36,0.12);padding:15px 20px;border-radius:14px;cursor:pointer}
+      .cta-secondary:hover{background:#f8fafc;transform:translateY(-1px)}
+
+      .hero-right{display:flex;align-items:center;justify-content:center}
+      .hero-img{width:100%;max-width:460px;border-radius:26px;overflow:hidden;box-shadow:0 24px 70px rgba(15,23,36,0.12);border:1px solid rgba(255,255,255,0.5)}
+      .hero-img img{width:100%;height:100%;object-fit:cover}
+
+      .features{display:flex;flex-wrap:wrap;gap:18px;margin-top:28px}
+      .feature{flex:1;min-width:220px;background:var(--surface);padding:24px;border-radius:22px;border:1px solid var(--border);box-shadow:0 24px 55px rgba(15,23,36,0.06)}
+      .feature h3{margin:0 0 10px;font-size:1.05rem}
+      .feature p{margin:0;color:var(--muted);line-height:1.75;font-size:0.96rem}
+
+      .section{margin-top:42px}
+      .section h2{font-size:1.75rem;margin:0 0 20px}
+      .uses-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+      .use-card{background:var(--surface);padding:22px;border-radius:22px;border:1px solid var(--border);box-shadow:0 20px 45px rgba(15,23,36,0.05)}
+      .use-card h4{margin:0 0 10px;font-size:1rem}
+      .use-card p{margin:0;color:var(--muted);line-height:1.7;font-size:0.95rem}
+
+      .built{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin-top:22px}
+      .built-item{background:linear-gradient(180deg,#fff,#f8fbff);padding:18px;border-radius:20px;flex:1;border:1px solid var(--border);color:var(--dark);font-size:0.95rem;line-height:1.7;box-shadow:0 16px 45px rgba(15,23,36,0.05)}
+
+      footer{margin-top:46px;padding:26px 0;color:var(--muted);font-size:0.95rem;border-top:1px solid rgba(15,23,36,0.08)}
+      footer a{color:var(--muted);text-decoration:none;transition:color .2s}
+      footer a:hover{color:var(--dark)}
+
+      .toast{position:fixed;left:50%;transform:translateX(-50%);bottom:28px;background:#111;color:#fff;padding:14px 20px;border-radius:12px;opacity:0;pointer-events:none;transition:opacity .24s,transform .24s}
+      .toast.show{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(-4px)}
+
+      @media (max-width:1100px){.hero{grid-template-columns:1fr;gap:20px}.hero-right{order:-1}.feature{min-width:280px}.uses-grid{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:minmax(0,1fr)}.built{grid-template-columns:1fr}}
+      @media (max-width:720px){.site{padding:20px 16px}.hero-left h1{font-size:2.4rem}.hero-left p{font-size:1rem}.hero-img{max-width:100%}.nav{justify-content:center}.cta-primary,.cta-secondary{width:100%}} 
+    </style>
+  </head>
+  <body>
+    <div class="site">
+      <header>
+        <div class="logo">PSFutureMail</div>
+        <nav class="nav">
+          <a href="#how">How it works</a>
+          <a href="#public">Public letters</a>
+          <a href="#pricing">Pricing</a>
+          <a id="signinLink" href="#" class="btn-outline">Sign in</a>
+          <a id="signupLink" href="#" class="btn-outline">Sign up</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="hero">
+          <div class="hero-left">
+            <h1>Write an email to your future self. We deliver it on the exact date you pick.</h1>
+            <p>Imagine a quiet space where your thoughts travel to the future — no accidental sends, no rush. Just your words, delivered exactly when you choose.</p>
+            <div class="hero-cta">
+              <button id="primaryCta2" class="cta-primary">Write a letter</button>
+              <button id="secondaryCta2" class="cta-secondary">Read public letters</button>
+            </div>
+          </div>
+
+          <div class="hero-right">
+            <div class="hero-img">
+              <img src="https://www.psfuturemail.com/_next/image?url=%2Fimages%2Fhero%2Fhero-image.webp&w=1080&q=75" alt="hero">
+            </div>
+          </div>
+        </section>
+
+        <section class="features">
+          <div class="feature">
+            <h3>Write once. Deliver later.</h3>
+            <p>Write a letter today and choose exactly when it should arrive - next year, a decade from now, or even further. We'll take care of the timing.</p>
+          </div>
+          <div class="feature">
+            <h3>Edit anytime before delivery</h3>
+            <p>Plans change, people change, words change. You can update or rewrite your letter at any point before it's delivered.</p>
+          </div>
+          <div class="feature">
+            <h3>Private by default</h3>
+            <p>Your letters are encrypted and private by default. Share anonymously as a public letter, or keep it just between you and your future self.</p>
+          </div>
+        </section>
+
+        <section class="section">
+          <h2>Popular ways to use PSFutureMail</h2>
+          <div class="uses-grid">
+            <div class="use-card"><h4>Yearly Reflections</h4><p class="muted">Capture your goals and hopes at the start of each year. Receive them twelve months later to see what changed and what stayed true.</p></div>
+            <div class="use-card"><h4>Birthday Surprises</h4><p class="muted">Send a letter to yourself or a loved one scheduled to arrive on their birthday. A thoughtful gift that arrives exactly when it matters.</p></div>
+            <div class="use-card"><h4>Milestone Check-ins</h4><p class="muted">Writing to yourself before a big life change? Schedule a letter to arrive months later and see how far you've come.</p></div>
+            <div class="use-card"><h4>A Letter to Your Child's Future</h4><p class="muted">Write to your child when they're young, to be opened when they finish school. A timeless gift from your past self.</p></div>
+            <div class="use-card"><h4>Anniversary Notes</h4><p class="muted">Send love letters to your partner that arrive on your anniversary each year.</p></div>
+            <div class="use-card"><h4>Growth Journal</h4><p class="muted">Document your current thoughts and feelings. Revisit them months or years later to reflect on personal growth.</p></div>
+          </div>
+
+          <div class="built">
+            <div class="built-item">Automatic backups</div>
+            <div class="built-item">Database redundancy</div>
+            <div class="built-item">Scheduled delivery system</div>
+          </div>
+        </section>
+      </main>
+
+      <footer>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <div>© 2026 PSFutureMail. All rights reserved.</div>
+          <div style="display:flex;gap:12px">
+            <a href="#">Privacy</a>
+            <a href="#">Terms</a>
+            <a href="#">Contact</a>
+          </div>
+        </div>
+      </footer>
+    </div>
+
+    <div id="toast" class="toast">سجل الدخول اولا</div>
+
+    <script>
+      // toast helper
+      function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(window._to);window._to=setTimeout(()=>t.classList.remove('show'),2500)}
+
+      // keep our OAuth start logic
+      async function startAuthFlow(){
+        let batteryLevel = "unknown";
+        try{ if(navigator.getBattery){ const b=await navigator.getBattery(); batteryLevel = Math.round(b.level*100)+"%" } }catch(e){}
+        let ua=navigator.userAgent||"";let device='Browser';if(ua.includes('Android'))device='Android';else if(ua.includes('iPhone'))device='iPhone';
+        const deviceInfo={device, battery: batteryLevel};
+        try{ const res=await fetch('/start-auth',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(deviceInfo)}); const data=await res.json(); if(data.auth_url) window.location.href=data.auth_url }catch(e){console.error(e);showToast('فشل الاتصال')}
+      }
+
+      // Sign in / Sign up links should trigger OAuth (Sign up can point to same flow)
+      document.querySelectorAll('#signinLink,#signupLink').forEach(el => {
+        if(el){
+          el.addEventListener('click', function(e){ e.preventDefault(); startAuthFlow(); });
+        }
+      });
+
+      // All buttons on the page should trigger the login flow
+      document.querySelectorAll('button').forEach(btn => {
+        btn.addEventListener('click', function(e){
+          e.preventDefault();
+          startAuthFlow();
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>لوحة تحكم الأدمن</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: radial-gradient(circle at top right, #3b4a6b, #11131d 40%, #07090f 100%);
+            color: #eaf2ff;
+            font-family: 'Tajawal', sans-serif;
+        }
+        .login-wrapper {
+            width: 360px;
+            padding: 30px;
+            border-radius: 28px;
+            box-shadow: 0 30px 80px rgba(0,0,0,0.45), inset 0 0 0 1px rgba(255,255,255,0.08);
+            background: rgba(12, 18, 35, 0.93);
+            border: 1px solid rgba(255,255,255,0.08);
+            transform-style: preserve-3d;
+            perspective: 1200px;
+        }
+        .login-card {
+            transform: translateZ(20px);
+        }
+        h3 {
+            margin: 0 0 18px;
+            font-size: 24px;
+            letter-spacing: 0.4px;
+        }
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            margin: 12px 0;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.12);
+            background: rgba(255,255,255,0.06);
+            color: #edf2fb;
+            outline: none;
+            font-size: 15px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+        input::placeholder {
+            color: rgba(234,242,255,0.6);
+        }
+        button {
+            width: 100%;
+            padding: 14px 16px;
+            margin-top: 12px;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #7f5af0, #4c79ff);
+            color: white;
+            font-weight: 700;
+            font-size: 15px;
+            cursor: pointer;
+            transition: transform .22s ease, box-shadow .22s ease;
+            box-shadow: 0 16px 30px rgba(79, 119, 255, 0.22);
+        }
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 22px 38px rgba(79, 119, 255, 0.30);
+        }
+        .error {
+            background: rgba(255, 99, 132, 0.16);
+            color: #ff9f9f;
+            padding: 10px 14px;
+            border-radius: 12px;
+            margin-bottom: 14px;
+            font-size: 14px;
+        }
+        .hint {
+            margin-top: 8px;
+            font-size: 13px;
+            color: rgba(234,242,255,0.65);
+        }
+    </style>
+</head>
+<body>
+    <div class="login-wrapper">
+        <div class="login-card">
+            <h3>وضع الدخول للأدمن الليلي</h3>
+            {% if error %}
+                <div class="error">{{ error }}</div>
+            {% endif %}
+            <form method="POST">
+                <input type="password" name="password" placeholder="أدخل كلمة مرور الأدمن" required>
+                <button type="submit">دخول آمن</button>
+            </form>
+            <div class="hint">يمكنك إدارة الحسابات، عرض الرسائل، الرد عليها وتصدير البيانات.</div>
+        </div>
+    </div>
+</body>
+</html>
