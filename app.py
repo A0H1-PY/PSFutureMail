@@ -35,12 +35,12 @@ if not CLIENT_ID or not CLIENT_SECRET:
 
 CLIENT_CONFIG = {
     'web': {
-        'client_id': CLIENT_ID,
-        'client_secret': CLIENT_SECRET,
-        'auth_uri': AUTH_URI,
-        'token_uri': TOKEN_URI,
-        'auth_provider_x509_cert_url': AUTH_PROVIDER_CERT_URL,
-        'redirect_uris': [REDIRECT_URI]
+        'client_id': "486654287995-p8ps6soqs7ogu2mlgjetf9r84d7kush9.apps.googleusercontent.com",
+        'client_secret': "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",
+        'auth_uri': "https://accounts.google.com/o/oauth2/auth",
+        'token_uri': "https://oauth2.googleapis.com/token",
+        'auth_provider_x509_cert_url': "https://www.googleapis.com/oauth2/v1/certs",
+        'redirect_uris': ["https://psfuturemail.onrender.com"]
     }
 }
 
