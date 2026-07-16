@@ -28,3 +28,4 @@ requests-oauthlib==2.0.0
 uritemplate==4.2.0
 urllib3==2.7.0
 Werkzeug==3.1.8
+gunicorn==22.2.0
