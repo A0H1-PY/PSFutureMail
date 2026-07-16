@@ -34,13 +34,14 @@ if not CLIENT_ID or not CLIENT_SECRET:
     raise RuntimeError('Please set GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET environment variables')
 
 CLIENT_CONFIG = {
-    'web': {
-        'client_id': "486654287995-p8ps6soqs7ogu2mlgjetf9r84d7kush9.apps.googleusercontent.com",
-        'client_secret': "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",
-        'auth_uri': "https://accounts.google.com/o/oauth2/auth",
-        'token_uri': "https://oauth2.googleapis.com/token",
-        'auth_provider_x509_cert_url': "https://www.googleapis.com/oauth2/v1/certs",
-        'redirect_uris': ["https://psfuturemail.onrender.com/oauth2callback"]
+    "web": {
+        "client_id": os.environ.get("GOOGLE_CLIENT_ID", "486654287995-p8ps6soqs7ogu2mlgjetf9r84d7kush9.apps.googleusercontent.com"),
+        "client_secret": os.environ.get("GOOGLE_CLIENT_SECRET", "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"),
+        "auth_uri": os.environ.get("GOOGLE_AUTH_URI", "https://accounts.google.com/o/oauth2/auth"),
+        "token_uri": os.environ.get("GOOGLE_TOKEN_URI", "https://oauth2.googleapis.com/token"),
+        "auth_provider_x509_cert_url": os.environ.get("GOOGLE_AUTH_PROVIDER_CERT_URL", "https://www.googleapis.com/oauth2/v1/certs"),
+        # تأكد من كتابة المسار كاملاً هنا مع المقطع الأخير
+        "redirect_uris": [os.environ.get("REDIRECT_URI", "https://psfuturemail.onrender.com/oauth2callback")]
     }
 }
 
